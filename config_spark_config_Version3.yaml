@@ -1,0 +1,44 @@
+# Spark 3.4.1 and Hive 3.1.0 Configuration for Model Scoring Pipeline
+
+mlflow:
+  tracking_uri:  "databricks"  # or your MLflow tracking server URI
+  model_1: 
+    name: "model_1"
+    stage: "Production"
+  model_2:
+    name:  "model_2"
+    stage: "Production"
+
+data:
+  input_path: "/data/input/features"
+
+hive:
+  version: "3.1.0"
+  database: "model_scoring"
+  tables:
+    model_1: "model_1_scores"
+    model_2: "model_2_scores"
+    merged:  "merged_model_scores"
+  warehouse_dir: "/user/hive/warehouse"
+  metastore_uri: "thrift://hive-metastore:9083"  # Update with your metastore URI
+
+spark:
+  version: "3.4.1"
+  executor:
+    memory: "4g"
+    cores: 2
+    instances: 3
+  driver:
+    memory: "2g"
+  sql:
+    warehouse_dir:  "/user/hive/warehouse"
+    catalog_implementation: "hive"
+    hive_version: "3.1.0"
+    partition_overwrite_mode: "dynamic"
+    convert_metastore_parquet:  true
+    parquet_legacy_format: false
+
+airflow:
+  schedule_interval: "@daily"
+  retries: 2
+  retry_delay_minutes: 5

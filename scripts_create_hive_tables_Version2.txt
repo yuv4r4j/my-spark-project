@@ -1,0 +1,46 @@
+-- Create database
+CREATE DATABASE IF NOT EXISTS model_scoring
+COMMENT 'Database for model scoring outputs'
+LOCATION '/user/hive/warehouse/model_scoring. db';
+
+USE model_scoring;
+
+-- Model 1 scores table
+CREATE TABLE IF NOT EXISTS model_1_scores (
+    id STRING,
+    model_1_prediction DOUBLE,
+    scoring_timestamp TIMESTAMP,
+    model_name STRING
+)
+PARTITIONED BY (run_id STRING)
+STORED AS PARQUET
+TBLPROPERTIES ('parquet.compression'='SNAPPY');
+
+-- Model 2 scores table
+CREATE TABLE IF NOT EXISTS model_2_scores (
+    id STRING,
+    model_2_prediction DOUBLE,
+    scoring_timestamp TIMESTAMP,
+    model_name STRING
+)
+PARTITIONED BY (run_id STRING)
+STORED AS PARQUET
+TBLPROPERTIES ('parquet.compression'='SNAPPY');
+
+-- Merged scores table
+CREATE TABLE IF NOT EXISTS merged_model_scores (
+    id STRING,
+    model_1_score DOUBLE,
+    model_2_score DOUBLE,
+    ensemble_score DOUBLE,
+    model_1_timestamp TIMESTAMP,
+    model_2_timestamp TIMESTAMP,
+    merge_timestamp TIMESTAMP
+)
+PARTITIONED BY (run_id STRING)
+STORED AS PARQUET
+TBLPROPERTIES ('parquet.compression'='SNAPPY');
+
+-- Enable dynamic partitioning
+SET hive.exec.dynamic.partition=true;
+SET hive.exec.dynamic.partition.mode=nonstrict;
